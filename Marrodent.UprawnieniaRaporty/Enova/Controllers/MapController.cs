@@ -20,7 +20,8 @@ namespace Marrodent.UprawnieniaRaporty.Enova.Controllers
             {
                 Name = @operator.Name, 
                 FullName = @operator.FullName, 
-                Permissions = @operator.Entitles.Select(x=>x.Entitle.Name).ToList()
+                Permissions = @operator.Entitles.Select(x=>x.Entitle.Name).ToList(),
+                LastLogin = GetLastLogin(sessionable, @operator.ID)
             }).ToList();
         }
 
