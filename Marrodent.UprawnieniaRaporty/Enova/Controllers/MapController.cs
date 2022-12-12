@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
+using Devart.Data.MySql;
 using Marrodent.UprawnieniaRaporty.Enova.Interfaces;
 using Marrodent.UprawnieniaRaporty.Models;
 using Soneta.Business;
@@ -24,7 +27,26 @@ namespace Marrodent.UprawnieniaRaporty.Enova.Controllers
         //Private
         private DateTime GetLastLogin(ISessionable sessionable, int id)
         {
+            //Result
+            DateTime result = DateTime.MinValue;
 
+            //Execute
+            using (Connection connection = sessionable.Session.Login.Database.OpenConnection(DatabaseType.Operational))
+            {
+                using (MySqlDataReader response = (MySqlDataReader)connection.ExecuteCommand(ExecuteMode.Reader, $"SELECT MAX(Time) FROM ChangeInfos WHERE Operator = {id} AND Type = 7"))
+                {
+                    while (response.Read())
+                    {
+                        if (response.IsDBNull(0)) continue;
+                        result = response.GetDateTime(0);
+                        break;
+                    }
+
+                    response.Close();
+                }
+            }
+
+            return result;
         }
     }
 }
