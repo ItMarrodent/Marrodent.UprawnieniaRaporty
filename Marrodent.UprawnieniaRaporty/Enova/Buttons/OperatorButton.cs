@@ -24,7 +24,7 @@ namespace Marrodent.UprawnieniaRaporty.Enova.Buttons
             if(string.IsNullOrEmpty(path)) return;
 
             //Get - data
-            ICollection<OperatorExcelRow> data = new MapController().GetOperatorExcelRows(((View)cx[typeof(View)]).Cast<Operator>().Where(x=>!x.Locked).ToList());
+            ICollection<OperatorExcelRow> data = new MapController().GetOperatorExcelRows(cx.Session, ((View)cx[typeof(View)]).Cast<Operator>().Where(x=>!x.Locked).ToList());
 
             //Save - excel
             new OperatorExcelController(data).GenerateFile(path);
