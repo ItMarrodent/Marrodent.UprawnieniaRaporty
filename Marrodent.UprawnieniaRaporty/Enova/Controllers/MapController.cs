@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using Devart.Data.MySql;
 using Marrodent.UprawnieniaRaporty.Enova.Interfaces;
@@ -21,20 +20,23 @@ namespace Marrodent.UprawnieniaRaporty.Enova.Controllers
                 Name = @operator.Name, 
                 FullName = @operator.FullName, 
                 Permissions = @operator.Entitles.Select(x=>x.Entitle.Name).ToList(),
-                LastLogin = GetLastLogin(sessionable, @operator.ID)
+                LastLogin = GetLastLogin(sessionable, @operator)
             }).ToList();
         }
 
         //Private
-        private DateTime GetLastLogin(ISessionable sessionable, int id)
+        private string GetLastLogin(ISessionable sessionable, Operator @operator)
         {
+            //Progress
+            Trace.WriteLine($"{@operator.Name} - {@operator.FullName}", "Progress");
+
             //Result
             DateTime result = DateTime.MinValue;
 
             //Execute
             using (Connection connection = sessionable.Session.Login.Database.OpenConnection(DatabaseType.Operational))
             {
-                using (MySqlDataReader response = (MySqlDataReader)connection.ExecuteCommand(ExecuteMode.Reader, $"SELECT MAX(Time) FROM ChangeInfos WHERE Operator = {id} AND Type = 7"))
+                using (MySqlDataReader response = (MySqlDataReader)connection.ExecuteCommand(ExecuteMode.Reader, $"SELECT Time FROM ChangeInfos WHERE Operator = {@operator.ID} AND Type = 7 ORDER BY Time DESC LIMIT 1"))
                 {
                     while (response.Read())
                     {
@@ -47,7 +49,7 @@ namespace Marrodent.UprawnieniaRaporty.Enova.Controllers
                 }
             }
 
-            return result;
+            return result == DateTime.MinValue ? "Brak logowania" : result.ToString("yyyy-MM-dd HH:mm:ss");
         }
     }
 }

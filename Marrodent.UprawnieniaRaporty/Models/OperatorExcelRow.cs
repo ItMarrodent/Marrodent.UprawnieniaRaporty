@@ -10,7 +10,7 @@ namespace Marrodent.UprawnieniaRaporty.Models
         public string FullName { get; set; }
 
         //Public - datetime
-        public DateTime LastLogin { get; set; }
+        public string LastLogin { get; set; }
 
         //Public - list
         public List<string> Permissions { get; set; }
